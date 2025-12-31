@@ -673,7 +673,7 @@ for _, player in pairs(Players:GetPlayers()) do
     end)
 end
 
--- Loop principal
+-- Loop principal (corrigido)
 local lastGunCheck = 0
 local gunCheckInterval = 0.5
 
@@ -691,50 +691,25 @@ RunService.RenderStepped:Connect(function()
             if not currentSheriff.Character or not currentSheriff.Character:FindFirstChild("Humanoid") then
                 currentSheriff = nil
             else
-                local humanoid = currentSheriff.Character.Humanoid
-                if humanoid.Health <= 0 then
-                    currentSherif config.gunESPEnabled then
-    local currentTime = tick()
-    if currentTime - lastGunCheck >= gunCheckInterval then
-        lastGunCheck = currentTime
-        checkForDroppedGuns()
-        
-        for gun, _ in pairs(gunESPObjects) do
-            if not gun or not gun.Parent then
-                removeGunESP(gun)
+                local humanoid = currentSheriff.Character:FindFirstChild("Humanoid")
+                if humanoid and humanoid.Health <= 0 then
+                    currentSheriff = nil
+                end
             end
         end
     end
-end
-task.wait(0.2)
 
-if not child or not child.Parent then return end
-
-local itemName = child.Name:lower()
-if itemName:find("gun") or itemName == "gundrop" then
-    if child:IsA("Tool") or child:IsA("Model") or child:IsA("BasePart") then
-        local sheriffAlive = false
-        if currentSheriff and currentSheriff.Character then
-            local humanoid = currentSheriff.Character:FindFirstChild("Humanoid")
-            if humanoid and humanoid.Health > 0 then
-                sheriffAlive = true
+    if config.gunESPEnabled then
+        local currentTime = tick()
+        if currentTime - lastGunCheck >= gunCheckInterval then
+            lastGunCheck = currentTime
+            checkForDroppedGuns()
+            
+            for gun, _ in pairs(gunESPObjects) do
+                if not gun or not gun.Parent then
+                    removeGunESP(gun)
+                end
             end
-        end
-        
-        local isInInventory = false
-        for _, player in pairs(Players:GetPlayers()) do
-            if player.Character and player.Character:FindFirstChild(child.Name) then
-                isInInventory = true
-                break
-            end
-            if player:FindFirstChild("Backpack") and player.Backpack:FindFirstChild(child.Name) then
-                isInInventory = true
-                break
-            end
-        end
-        
-        if not sheriffAlive and not isInInventory then
-            createGunESP(child)
         end
     end
-end
+end)
